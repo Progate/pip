@@ -151,7 +151,10 @@ def user_agent() -> str:
     if setuptools_dist is not None:
         data["setuptools_version"] = str(setuptools_dist.version)
 
-    if shutil.which("rustc") is not None:
+    # browseros: BrowserOS（WASI）では rustc を起動して版を調べない。User-Agent に載せるためだけに、PATH に
+    # rustc があれば起動するが、BrowserOS の rustc（@progate/browser-rust）は起動のたびに sysroot（74MB）を取って
+    # 展開するので、pip install のたびにその時間を払うことになる
+    if sys.platform != "wasi" and shutil.which("rustc") is not None:
         # If for any reason `rustc --version` fails, silently ignore it
         try:
             rustc_output = subprocess.check_output(
